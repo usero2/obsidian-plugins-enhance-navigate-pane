@@ -409,59 +409,77 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					rootCollapsed = autoExpandLevel === 0;
 					this.collapsedStates.set(rootStateKey, rootCollapsed);
 				}
-
-				let fileArrow = item.el.querySelector('.enhance-nav-file-arrow');
-				if (!fileArrow && titleEl) {
-					fileArrow = document.createElement('div');
-					fileArrow.className = 'nav-folder-collapse-indicator enhance-nav-file-arrow collapse-icon';
-					fileArrow.style.order = '-99';
-					fileArrow.style.opacity = '1';
-					fileArrow.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon right-triangle"><path d="M3 8L12 17L21 8"></path></svg>`;
-					fileArrow.style.width = treeInd + 'px';
-					fileArrow.style.marginLeft = '-' + treeInd + 'px';
-					fileArrow.style.display = 'flex';
-					fileArrow.style.alignItems = 'center';
-					fileArrow.style.justifyContent = 'center';
-					fileArrow.style.transition = 'transform 0.1s ease';
-					fileArrow.style.color = 'var(--text-faint)';
+				if (titleEl) {
+					let fileArrow = item.el.querySelector('.enhance-nav-file-arrow');
 					
-					fileArrow.addEventListener('click', (e) => {
-						e.stopPropagation();
-						const currentlyCollapsed = container.style.display === 'none';
-						const willCollapse = !currentlyCollapsed;
-						this.collapsedStates.set(rootStateKey, willCollapse);
+					titleEl.style.setProperty('position', 'relative', 'important');
+					titleEl.style.setProperty('overflow', 'visible', 'important');
+					
+					if (!fileArrow) {
+						fileArrow = document.createElement('div');
+						fileArrow.className = 'enhance-nav-file-arrow';
+						fileArrow.style.setProperty('top', '0', 'important');
+						fileArrow.style.setProperty('bottom', '0', 'important');
+						fileArrow.style.setProperty('display', 'flex', 'important');
+						fileArrow.style.setProperty('align-items', 'center', 'important');
+						fileArrow.style.setProperty('justify-content', 'center', 'important');
+						fileArrow.style.setProperty('transition', 'transform 0.1s ease', 'important');
+						fileArrow.style.setProperty('color', 'var(--text-muted)', 'important');
+						fileArrow.style.setProperty('opacity', '1', 'important');
+						fileArrow.style.setProperty('z-index', '10', 'important');
+						fileArrow.style.setProperty('cursor', 'pointer', 'important');
+						fileArrow.style.setProperty('flex-shrink', '0', 'important');
 						
-						if (willCollapse) {
-							container.style.display = 'none';
-							fileArrow.style.transform = 'rotate(-90deg)';
-						} else {
-							container.style.display = '';
-							fileArrow.style.transform = '';
+						fileArrow.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M3 8L12 17L21 8"></path></svg>`;
+						
+						fileArrow.addEventListener('mouseenter', () => fileArrow.style.setProperty('color', 'var(--text-normal)', 'important'));
+						fileArrow.addEventListener('mouseleave', () => fileArrow.style.setProperty('color', 'var(--text-muted)', 'important'));
+						
+						fileArrow.addEventListener('click', (e) => {
+							e.stopPropagation();
+							const currentlyCollapsed = container.style.display === 'none';
+							const willCollapse = !currentlyCollapsed;
+							this.collapsedStates.set(rootStateKey, willCollapse);
 							
-							if (this.settings.arrowExpands === 'All levels') {
-								const childItems = container.querySelectorAll('.heading-item.is-collapsed');
-								childItems.forEach(child => {
-									const key = child.dataset.stateKey;
-									if (key) this.collapsedStates.set(key, false);
-									child.classList.remove('is-collapsed');
-									const childArrow = child.querySelector('.collapse-icon');
-									if (childArrow) childArrow.style.transform = '';
-									const childChildren = child.querySelector('.heading-children');
-									if (childChildren) childChildren.style.display = '';
-								});
+							if (willCollapse) {
+								container.style.display = 'none';
+								fileArrow.style.transform = 'rotate(-90deg)';
+							} else {
+								container.style.display = '';
+								fileArrow.style.transform = '';
+								
+								if (this.settings.arrowExpands === 'All levels') {
+									const childItems = container.querySelectorAll('.heading-item.is-collapsed');
+									childItems.forEach(child => {
+										const key = child.dataset.stateKey;
+										if (key) this.collapsedStates.set(key, false);
+										child.classList.remove('is-collapsed');
+										const childArrow = child.querySelector('.enhance-nav-collapse-icon');
+										if (childArrow) childArrow.style.transform = '';
+										const childChildren = child.querySelector('.heading-children');
+										if (childChildren) childChildren.style.display = '';
+									});
+								}
 							}
-						}
-					});
-					fileArrow.addEventListener('mouseenter', () => fileArrow.style.color = 'var(--text-normal)');
-					fileArrow.addEventListener('mouseleave', () => fileArrow.style.color = 'var(--text-faint)');
-					titleEl.insertBefore(fileArrow, titleEl.firstChild);
-				}
-
-				if (fileArrow && titleEl && titleEl.firstChild !== fileArrow) {
-					titleEl.insertBefore(fileArrow, titleEl.firstChild);
-				}
-
-				if (fileArrow) {
+						});
+						
+						titleEl.insertBefore(fileArrow, titleEl.firstChild);
+					}
+					
+					let pl = parseFloat(getComputedStyle(titleEl).paddingLeft) || 0;
+					const minPadding = parseFloat(treeInd) || 20;
+					fileArrow.style.setProperty('width', minPadding + 'px', 'important');
+					
+					if (pl >= minPadding) {
+						fileArrow.style.setProperty('position', 'absolute', 'important');
+						fileArrow.style.setProperty('left', (pl - minPadding) + 'px', 'important');
+						fileArrow.style.removeProperty('margin-right');
+					} else {
+						fileArrow.style.setProperty('position', 'relative', 'important');
+						fileArrow.style.removeProperty('left');
+						fileArrow.style.setProperty('margin-right', '4px', 'important');
+					}
+					
 					if (rootCollapsed) {
 						container.style.display = 'none';
 						fileArrow.style.transform = 'rotate(-90deg)';
@@ -489,7 +507,8 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					itemContainer.className = 'heading-item';
 					
 					const titleContainer = document.createElement('div');
-					titleContainer.className = 'nav-folder-title heading-title-container';
+					titleContainer.className = 'heading-title-container';
+					titleContainer.style.borderRadius = 'var(--radius-s)';
 					
 					if (this.activeHeading && this.activeHeading.path === item.file.path && this.activeHeading.line === h.position.start.line) {
 						titleContainer.classList.add('is-active');
@@ -503,37 +522,43 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					titleContainer.style.color = 'var(--text-muted)';
 					titleContainer.style.transition = 'color 0.15s ease';
 					titleContainer.style.fontSize = 'var(--nav-item-size)';
-					titleContainer.style.position = 'relative';
+					titleContainer.style.setProperty('position', 'relative', 'important');
+					titleContainer.style.marginLeft = '0px';
+					titleContainer.style.setProperty('overflow', 'visible', 'important');
 					
 					const hasChildren = index < filteredHeadings.length - 1 && filteredHeadings[index + 1].level > h.level;
 					
 					const arrowEl = document.createElement('div');
-					arrowEl.className = 'enhance-nav-collapse-icon collapse-icon';
-					arrowEl.style.position = 'absolute';
-					arrowEl.style.left = '-' + treeInd + 'px';
-					arrowEl.style.width = treeInd + 'px';
-					arrowEl.style.top = '0';
-					arrowEl.style.bottom = '0';
-					arrowEl.style.margin = '0';
+					arrowEl.className = 'enhance-nav-collapse-icon';
+					arrowEl.style.setProperty('position', 'absolute', 'important');
+					arrowEl.style.setProperty('left', '-' + treeInd + 'px', 'important');
+					arrowEl.style.setProperty('width', treeInd + 'px', 'important');
+					arrowEl.style.setProperty('top', '0', 'important');
+					arrowEl.style.setProperty('bottom', '0', 'important');
+					arrowEl.style.setProperty('margin', '0px', 'important');
 					arrowEl.style.setProperty('padding', '0px', 'important');
-					arrowEl.style.display = 'flex';
-					arrowEl.style.alignItems = 'center';
-					arrowEl.style.justifyContent = 'center';
+					arrowEl.style.setProperty('display', 'flex', 'important');
+					arrowEl.style.setProperty('align-items', 'center', 'important');
+					arrowEl.style.setProperty('justify-content', 'center', 'important');
 					arrowEl.style.transition = 'transform 0.1s ease';
-					arrowEl.style.color = 'var(--text-faint)';
+					arrowEl.style.setProperty('color', 'var(--text-muted)', 'important');
+					arrowEl.style.setProperty('opacity', '1', 'important');
+					arrowEl.style.setProperty('z-index', '10', 'important');
 					
 					if (!hasChildren) {
-						arrowEl.style.visibility = 'hidden';
+						arrowEl.style.setProperty('visibility', 'hidden', 'important');
 					} else {
-						arrowEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon right-triangle"><path d="M3 8L12 17L21 8"></path></svg>`;
-						arrowEl.addEventListener('mouseenter', () => arrowEl.style.color = 'var(--text-normal)');
-						arrowEl.addEventListener('mouseleave', () => arrowEl.style.color = 'var(--text-faint)');
+						arrowEl.style.setProperty('visibility', 'visible', 'important');
+						arrowEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M3 8L12 17L21 8"></path></svg>`;
+						arrowEl.addEventListener('mouseenter', () => arrowEl.style.setProperty('color', 'var(--text-normal)', 'important'));
+						arrowEl.addEventListener('mouseleave', () => arrowEl.style.setProperty('color', 'var(--text-muted)', 'important'));
 					}
 					titleContainer.appendChild(arrowEl);
 					
 					const hIcon = document.createElement('div');
-					hIcon.textContent = '#';
-					hIcon.style.opacity = Math.max(0.2, 1 - ((h.level - 1) * 0.15)).toString();
+					hIcon.textContent = 'H' + h.level;
+					hIcon.style.fontSize = '11px';
+					hIcon.style.opacity = Math.max(0.4, 1 - ((h.level - 1) * 0.15)).toString();
 					hIcon.style.marginRight = '6px';
 					hIcon.style.fontWeight = 'bold';
 					hIcon.style.width = 'var(--icon-size)';
@@ -545,6 +570,7 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					titleContainer.appendChild(hIcon);
 					
 					const text = document.createElement('span');
+					text.className = 'heading-title-content';
 					text.textContent = h.heading;
 					text.style.whiteSpace = 'nowrap';
 					text.style.overflow = 'hidden';
@@ -583,11 +609,13 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					titleContainer.addEventListener('mouseenter', () => {
 						if (!(this.activeHeading && this.activeHeading.path === item.file.path && this.activeHeading.line === h.position.start.line)) {
 							titleContainer.style.color = 'var(--text-normal)';
+							titleContainer.style.backgroundColor = 'var(--nav-item-background-hover)';
 						}
 					});
 					titleContainer.addEventListener('mouseleave', () => {
 						if (!(this.activeHeading && this.activeHeading.path === item.file.path && this.activeHeading.line === h.position.start.line)) {
 							titleContainer.style.color = 'var(--text-muted)';
+							titleContainer.style.backgroundColor = 'transparent';
 						}
 					});
 					
@@ -626,7 +654,7 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 									const key = child.dataset.stateKey;
 									if (key) this.collapsedStates.set(key, true);
 									child.classList.add('is-collapsed');
-									const childArrow = child.querySelector('.collapse-icon');
+									const childArrow = child.querySelector('.enhance-nav-collapse-icon');
 									if (childArrow) childArrow.style.transform = 'rotate(-90deg)';
 									const childChildren = child.querySelector('.heading-children');
 									if (childChildren) childChildren.style.display = 'none';
@@ -643,7 +671,7 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 									const key = child.dataset.stateKey;
 									if (key) this.collapsedStates.set(key, false);
 									child.classList.remove('is-collapsed');
-									const childArrow = child.querySelector('.collapse-icon');
+									const childArrow = child.querySelector('.enhance-nav-collapse-icon');
 									if (childArrow) childArrow.style.transform = '';
 									const childChildren = child.querySelector('.heading-children');
 									if (childChildren) childChildren.style.display = '';
@@ -813,33 +841,42 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 
 			const applyTextHighlight = (el, textContent, q) => {
 				el.innerHTML = '';
-				const lowerText = textContent.toLowerCase();
-				const idx = lowerText.indexOf(q);
-				if (idx !== -1 && q) {
-					const before = textContent.substring(0, idx);
-					const match = textContent.substring(idx, idx + q.length);
-					const after = textContent.substring(idx + q.length);
-					
-					if (before) el.appendChild(document.createTextNode(before));
+				const terms = q.split('|').map(t => t.trim()).filter(t => t.length > 0);
+				if (terms.length === 0) {
+					el.textContent = textContent;
+					return;
+				}
+
+				const escapedTerms = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+				const regex = new RegExp(`(${escapedTerms.join('|')})`, 'gi');
+				
+				let lastIndex = 0;
+				let match;
+				while ((match = regex.exec(textContent)) !== null) {
+					if (match.index > lastIndex) {
+						el.appendChild(document.createTextNode(textContent.substring(lastIndex, match.index)));
+					}
 					const mark = document.createElement('span');
 					mark.className = 'suggestion-highlight';
 					mark.style.backgroundColor = '#fde047'; // Soft yellow
 					mark.style.color = '#000000'; // Black text for high contrast
 					mark.style.padding = '0 2px';
 					mark.style.borderRadius = '3px';
-					mark.textContent = match;
+					mark.textContent = match[0];
 					el.appendChild(mark);
-					if (after) el.appendChild(document.createTextNode(after));
-				} else {
-					el.textContent = textContent;
+					lastIndex = regex.lastIndex;
+				}
+				if (lastIndex < textContent.length) {
+					el.appendChild(document.createTextNode(textContent.substring(lastIndex)));
 				}
 			};
 
 			const applyFilter = () => {
 				const q = inputEl.value.toLowerCase();
+				const terms = q.split('|').map(t => t.trim()).filter(t => t.length > 0);
 				clearBtn.style.display = q ? '' : 'none';
 				
-				if (!q) {
+				if (terms.length === 0) {
 					customContainer.style.display = 'none';
 					customContainer.innerHTML = '';
 					navFilesContainer.style.display = '';
@@ -862,21 +899,23 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 				let matchedFiles = new Map();
 				let matchedFolders = new Set();
 
-				const files = this.app.vault.getFiles().filter(f => f.extension === 'md');
+				const files = this.app.vault.getFiles();
 				const maxLevel = this.settings.maxHeadingLevel === 'All' ? 6 : parseInt(this.settings.maxHeadingLevel.replace('H', ''));
 
 				for (let file of files) {
-					let fileMatched = file.name.toLowerCase().includes(q);
+					const fileNameLower = file.name.toLowerCase();
+					let fileMatched = terms.some(t => fileNameLower.includes(t));
 					let matchedHeadings = [];
 
-					if (this.settings.searchHeadings) {
+					if (this.settings.searchHeadings && file.extension === 'md') {
 						const cache = this.app.metadataCache.getFileCache(file);
 						if (cache && cache.headings) {
 							const allHeadings = cache.headings.filter(h => h.level <= maxLevel);
 							let matchedIndices = new Set();
 							
 							for (let i = 0; i < allHeadings.length; i++) {
-								if (allHeadings[i].heading.toLowerCase().includes(q)) {
+								const headingLower = allHeadings[i].heading.toLowerCase();
+								if (terms.some(t => headingLower.includes(t))) {
 									matchedIndices.add(i);
 									let currentLevel = allHeadings[i].level;
 									for (let j = i - 1; j >= 0; j--) {
@@ -896,7 +935,8 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					let folderMatched = false;
 					let parent = file.parent;
 					while (parent && parent.path !== '/') {
-						if (parent.name.toLowerCase().includes(q)) {
+						const parentNameLower = parent.name.toLowerCase();
+						if (terms.some(t => parentNameLower.includes(t))) {
 							folderMatched = true;
 							matchedFolders.add(parent.path);
 						}
@@ -1025,7 +1065,8 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 								hItem.className = 'heading-item';
 
 								const titleContainer = document.createElement('div');
-								titleContainer.className = 'nav-folder-title heading-title-container';
+								titleContainer.className = 'heading-title-container';
+								titleContainer.style.borderRadius = 'var(--radius-s)';
 								titleContainer.style.display = 'flex';
 								titleContainer.style.alignItems = 'center';
 								titleContainer.style.cursor = 'pointer';
@@ -1033,37 +1074,43 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 								titleContainer.style.color = 'var(--text-muted)';
 								titleContainer.style.transition = 'color 0.15s ease';
 								titleContainer.style.fontSize = 'var(--nav-item-size)';
-								titleContainer.style.position = 'relative';
+								titleContainer.style.setProperty('position', 'relative', 'important');
+								titleContainer.style.marginLeft = '0px';
+								titleContainer.style.setProperty('overflow', 'visible', 'important');
 								
 								const hasChildren = index < matchData.matchedHeadings.length - 1 && matchData.matchedHeadings[index + 1].level > h.level;
 								
 								const arrowEl = document.createElement('div');
-								arrowEl.className = 'enhance-nav-collapse-icon collapse-icon';
-								arrowEl.style.position = 'absolute';
-								arrowEl.style.left = '-' + treeInd + 'px';
-								arrowEl.style.width = treeInd + 'px';
-								arrowEl.style.top = '0';
-								arrowEl.style.bottom = '0';
-								arrowEl.style.margin = '0';
+								arrowEl.className = 'enhance-nav-collapse-icon';
+								arrowEl.style.setProperty('position', 'absolute', 'important');
+								arrowEl.style.setProperty('left', '-' + treeInd + 'px', 'important');
+								arrowEl.style.setProperty('width', treeInd + 'px', 'important');
+								arrowEl.style.setProperty('top', '0', 'important');
+								arrowEl.style.setProperty('bottom', '0', 'important');
+								arrowEl.style.setProperty('margin', '0px', 'important');
 								arrowEl.style.setProperty('padding', '0px', 'important');
-								arrowEl.style.display = 'flex';
-								arrowEl.style.alignItems = 'center';
-								arrowEl.style.justifyContent = 'center';
+								arrowEl.style.setProperty('display', 'flex', 'important');
+								arrowEl.style.setProperty('align-items', 'center', 'important');
+								arrowEl.style.setProperty('justify-content', 'center', 'important');
 								arrowEl.style.transition = 'transform 0.1s ease';
-								arrowEl.style.color = 'var(--text-faint)';
+								arrowEl.style.setProperty('color', 'var(--text-muted)', 'important');
+								arrowEl.style.setProperty('opacity', '1', 'important');
+								arrowEl.style.setProperty('z-index', '10', 'important');
 								
 								if (!hasChildren) {
-									arrowEl.style.visibility = 'hidden';
+									arrowEl.style.setProperty('visibility', 'hidden', 'important');
 								} else {
-									arrowEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon right-triangle"><path d="M3 8L12 17L21 8"></path></svg>`;
-									arrowEl.addEventListener('mouseenter', () => arrowEl.style.color = 'var(--text-normal)');
-									arrowEl.addEventListener('mouseleave', () => arrowEl.style.color = 'var(--text-faint)');
+									arrowEl.style.setProperty('visibility', 'visible', 'important');
+									arrowEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M3 8L12 17L21 8"></path></svg>`;
+									arrowEl.addEventListener('mouseenter', () => arrowEl.style.setProperty('color', 'var(--text-normal)', 'important'));
+									arrowEl.addEventListener('mouseleave', () => arrowEl.style.setProperty('color', 'var(--text-muted)', 'important'));
 								}
 								titleContainer.appendChild(arrowEl);
 								
 								const hIcon = document.createElement('div');
-								hIcon.textContent = '#';
-								hIcon.style.opacity = Math.max(0.2, 1 - ((h.level - 1) * 0.15)).toString();
+								hIcon.textContent = 'H' + h.level;
+								hIcon.style.fontSize = '11px';
+								hIcon.style.opacity = Math.max(0.4, 1 - ((h.level - 1) * 0.15)).toString();
 								hIcon.style.marginRight = '6px';
 								hIcon.style.fontWeight = 'bold';
 								hIcon.style.width = 'var(--icon-size)';
@@ -1074,7 +1121,6 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 								hIcon.style.flexShrink = '0';
 								
 								const hContent = document.createElement('span');
-								hContent.className = 'nav-folder-title-content';
 								hContent.style.whiteSpace = 'nowrap';
 								hContent.style.overflow = 'hidden';
 								hContent.style.textOverflow = 'ellipsis';
@@ -1082,6 +1128,17 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 
 								titleContainer.appendChild(hIcon);
 								titleContainer.appendChild(hContent);
+
+								titleContainer.addEventListener('mouseenter', () => {
+									if (!titleContainer.classList.contains('is-active')) {
+										titleContainer.style.backgroundColor = 'var(--nav-item-background-hover)';
+									}
+								});
+								titleContainer.addEventListener('mouseleave', () => {
+									if (!titleContainer.classList.contains('is-active')) {
+										titleContainer.style.backgroundColor = 'transparent';
+									}
+								});
 
 								titleContainer.addEventListener('click', async (e) => {
 									e.stopPropagation();
@@ -1283,6 +1340,7 @@ class EnhanceNavigateSettingTab extends PluginSettingTab {
 						activeLeaf.view.requestSaveLayout();
 						// Remove old icons
 						document.querySelectorAll('.custom-nav-icon').forEach(el => el.remove());
+						this.plugin.applyIcons();
 					}
 				}));
 
