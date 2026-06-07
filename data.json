@@ -1,0 +1,19 @@
+{
+  "showFilter": true,
+  "interceptClick": false,
+  "fontSize": "12",
+  "itemPadding": "1",
+  "itemMargin": "1",
+  "treeIndent": "1",
+  "showHeadings": true,
+  "maxHeadingLevel": "H4",
+  "autoExpandLevel": "H3",
+  "arrowExpands": "All levels",
+  "searchHeadings": true,
+  "recursiveCollapse": true,
+  "iconSet": "material",
+  "stickyTree": true,
+  "enableOverlay": true,
+  "overlayWidth": "100px",
+  "overlayOpacity": 0.35
+}
