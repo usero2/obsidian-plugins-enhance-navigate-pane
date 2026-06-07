@@ -65,6 +65,14 @@ Make your File Explorer look exactly the way you want with real-time updates.
 
 ---
 
+## 🆕 What's New in Version 1.0.1
+
+- **Bug Fix:** Fixed an issue where changing the `Icon Set` in the settings did not update the file explorer immediately (required a restart). Icons now update instantly when you change your selection.
+- **Bug Fix:** Fixed a memory leak and bug with `MutationObserver` that prevented new files/folders (when expanding a folder) from receiving custom icons without a reload.
+- **Under the Hood:** Minor code improvements for better compatibility and performance with Obsidian's workspace layout.
+
+--- 
+
 ## ❤️ Support & Donate
 
 If this plugin has improved your Obsidian workflow, saved you time, or you just want to support its continued development, please consider donating! 

@@ -183,20 +183,26 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 
 	initIconObserver() {
 		const checkAndObserve = () => {
-			const container = document.querySelector('.nav-files-container');
-			if (!container) {
+			const leaves = this.app.workspace.getLeavesOfType("file-explorer");
+			if (leaves.length === 0) {
 				setTimeout(checkAndObserve, 1000);
 				return;
 			}
-			const observer = new MutationObserver((mutations) => {
-				const hasNewNodes = mutations.some(m => m.type === 'childList' && m.addedNodes.length > 0);
-				if (!hasNewNodes) return;
-				
-				if (this.iconDebounceTimer) clearTimeout(this.iconDebounceTimer);
-				this.iconDebounceTimer = setTimeout(() => this.applyIcons(), 200);
-			});
-			observer.observe(container, { childList: true, subtree: true });
-			this.observers.push(observer);
+			for (let leaf of leaves) {
+				const container = leaf.view.containerEl;
+				const navFilesContainer = container.querySelector('.nav-files-container');
+				if (!navFilesContainer) continue;
+				if (this.observers.find(o => o.container === container)) continue;
+				const observer = new MutationObserver((mutations) => {
+					const hasNewNodes = mutations.some(m => m.type === 'childList' && m.addedNodes.length > 0);
+					if (!hasNewNodes) return;
+					
+					if (this.iconDebounceTimer) clearTimeout(this.iconDebounceTimer);
+					this.iconDebounceTimer = setTimeout(() => this.applyIcons(), 200);
+				});
+				observer.observe(navFilesContainer, { childList: true, subtree: true });
+				this.observers.push({ container: container, observer: observer });
+			}
 		};
 		checkAndObserve();
 	}
@@ -275,6 +281,7 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 		this.removeFilter();
 		this.initFilter();
 		this.updateHeadings();
+		this.initIconObserver();
 	}
 
 	updateStyles() {
@@ -1334,14 +1341,8 @@ class EnhanceNavigateSettingTab extends PluginSettingTab {
 					this.plugin.settings.iconSet = value;
 					await this.plugin.saveSettings();
 					
-					// Trigger a layout re-render to apply new icons
-					const activeLeaf = this.plugin.app.workspace.getLeavesOfType('file-explorer')[0];
-					if (activeLeaf) {
-						activeLeaf.view.requestSaveLayout();
-						// Remove old icons
-						document.querySelectorAll('.custom-nav-icon').forEach(el => el.remove());
-						this.plugin.applyIcons();
-					}
+					document.querySelectorAll('.custom-nav-icon').forEach(el => el.remove());
+					this.plugin.applyIcons();
 				}));
 
 		new Setting(containerEl)
