@@ -10,6 +10,8 @@ An Obsidian plugin that superpowers your native File Explorer (Navigate Pane) wi
 ### 🔍 Advanced Filtering & Search
 A highly responsive search bar injected directly to the top of the native File Explorer, allowing you to instantly find files, folders, and even headings.
 
+![](images/Obsidian_SaHWwks66a.gif)
+
 - **Multi-term Search:** Type multiple words (e.g., `my project`) to find items containing that exact phrase.
 - **OR Operator (`|`):** Use the pipe symbol `|` to search for multiple conditions at once. For example, typing `data | file | image` will show any file, folder, or heading containing `data`, OR `file`, OR `image`.
 - **Search All File Types:** The filter searches across all file extensions in your vault (e.g., `.jpg`, `.png`, `.pdf`), not just markdown files.
