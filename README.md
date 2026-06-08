@@ -2,6 +2,9 @@
 
 An Obsidian plugin that superpowers your native File Explorer (Navigate Pane) with advanced features like inline heading navigation, powerful multi-term filtering, custom icons, and extensive appearance customization.
 
+![](images/Obsidian_yhti45gF4V.png)
+
+
 ## ✨ Features & Usage Guide
 
 ### 🔍 Advanced Filtering & Search
