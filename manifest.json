@@ -1,7 +1,7 @@
 {
 	"id": "enhance-navigate-pane",
 	"name": "Enhance Navigate Pane",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"minAppVersion": "0.15.0",
 	"description": "Filter files/folders and navigate with arrow keys in the file explorer.",
 	"author": "usero2-endofday",

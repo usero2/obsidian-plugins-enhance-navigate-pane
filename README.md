@@ -78,6 +78,15 @@ Make your File Explorer look exactly the way you want with real-time updates.
 
 --- 
 
+## 🆕 What's New in Version 1.0.2
+
+- **Bug Fix:** Fixed an issue where expanding/collapsing folders caused file text to "bounce" or shift horizontally.
+- **Bug Fix:** Resolved alignment issues where the custom file arrow was not perfectly aligned with native folder arrows.
+- **Bug Fix:** Corrected the visual guide lines for nested headings so they align perfectly with the exact center of the file arrow.
+- **Under the Hood:** Completely revamped the arrow positioning logic to use pure CSS layout instead of dynamic JavaScript calculations. This guarantees pixel-perfect alignment using Obsidian's standard 24px indentation step across all files and folders.
+
+--- 
+
 ## ❤️ Support & Donate
 
 If this plugin has improved your Obsidian workflow, saved you time, or you just want to support its continued development, please consider donating! 

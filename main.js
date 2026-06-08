@@ -237,16 +237,17 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 		}
 		if (!iconStr) return;
 
-		el.querySelector('.custom-nav-icon')?.remove();
+		el.querySelectorAll('.custom-nav-icon').forEach(icon => icon.remove());
 
 		const span = document.createElement('span');
 		span.className = 'custom-nav-icon';
-		span.style.display = 'flex';
+		span.style.display = 'inline-flex';
 		span.style.alignItems = 'center';
 		span.style.justifyContent = 'center';
 		span.style.marginRight = '6px';
 		span.style.width = 'var(--icon-size)';
 		span.style.height = 'var(--icon-size)';
+		span.style.verticalAlign = 'middle';
 		span.style.opacity = '0.75';
 		span.style.flexShrink = '0';
 
@@ -265,7 +266,7 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 		
 		const contentEl = el.querySelector('.nav-file-title-content, .nav-folder-title-content');
 		if (contentEl) {
-			el.insertBefore(span, contentEl);
+			contentEl.prepend(span);
 		} else {
 			el.prepend(span);
 		}
@@ -396,12 +397,13 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					container = document.createElement('div');
 					container.className = 'enhance-nav-headings-container';
 					
-					const paddingLeftStr = titleEl ? getComputedStyle(titleEl).paddingLeft : '20px';
-					const paddingLeft = parseFloat(paddingLeftStr) || 20;
+					const paddingLeftStr = titleEl ? getComputedStyle(titleEl).paddingLeft : '24px';
+					let paddingLeft = parseFloat(paddingLeftStr) || 24;
+					if (paddingLeft === 0 && titleEl && titleEl.style.paddingLeft) paddingLeft = parseFloat(titleEl.style.paddingLeft) || 24;
 
-					container.style.marginLeft = (paddingLeft + halfInd) + 'px';
+					container.style.marginLeft = (paddingLeft - 12) + 'px';
 					container.style.borderLeft = '1px solid var(--nav-indentation-guide-color)';
-					container.style.paddingLeft = halfInd + 'px';
+					container.style.paddingLeft = '36px';
 					
 					if (titleEl) {
 						titleEl.insertAdjacentElement('afterend', container);
@@ -437,7 +439,7 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 						fileArrow.style.setProperty('cursor', 'pointer', 'important');
 						fileArrow.style.setProperty('flex-shrink', '0', 'important');
 						
-						fileArrow.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M3 8L12 17L21 8"></path></svg>`;
+						fileArrow.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon right-triangle" style="width: 12px; height: 12px;"><path d="M3 8L12 17L21 8"></path></svg>`;
 						
 						fileArrow.addEventListener('mouseenter', () => fileArrow.style.setProperty('color', 'var(--text-normal)', 'important'));
 						fileArrow.addEventListener('mouseleave', () => fileArrow.style.setProperty('color', 'var(--text-muted)', 'important'));
@@ -473,19 +475,11 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 						titleEl.insertBefore(fileArrow, titleEl.firstChild);
 					}
 					
-					let pl = parseFloat(getComputedStyle(titleEl).paddingLeft) || 0;
-					const minPadding = parseFloat(treeInd) || 20;
-					fileArrow.style.setProperty('width', minPadding + 'px', 'important');
-					
-					if (pl >= minPadding) {
-						fileArrow.style.setProperty('position', 'absolute', 'important');
-						fileArrow.style.setProperty('left', (pl - minPadding) + 'px', 'important');
-						fileArrow.style.removeProperty('margin-right');
-					} else {
-						fileArrow.style.setProperty('position', 'relative', 'important');
-						fileArrow.style.removeProperty('left');
-						fileArrow.style.setProperty('margin-right', '4px', 'important');
-					}
+					fileArrow.style.setProperty('width', '24px', 'important');
+					fileArrow.style.setProperty('position', 'absolute', 'important');
+					fileArrow.style.setProperty('margin-left', '-24px', 'important');
+					fileArrow.style.removeProperty('left');
+					fileArrow.style.removeProperty('margin-right');
 					
 					if (rootCollapsed) {
 						container.style.display = 'none';
@@ -538,8 +532,8 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					const arrowEl = document.createElement('div');
 					arrowEl.className = 'enhance-nav-collapse-icon';
 					arrowEl.style.setProperty('position', 'absolute', 'important');
-					arrowEl.style.setProperty('left', '-' + treeInd + 'px', 'important');
-					arrowEl.style.setProperty('width', treeInd + 'px', 'important');
+					arrowEl.style.setProperty('left', '-24px', 'important');
+					arrowEl.style.setProperty('width', '24px', 'important');
 					arrowEl.style.setProperty('top', '0', 'important');
 					arrowEl.style.setProperty('bottom', '0', 'important');
 					arrowEl.style.setProperty('margin', '0px', 'important');
@@ -556,7 +550,7 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 						arrowEl.style.setProperty('visibility', 'hidden', 'important');
 					} else {
 						arrowEl.style.setProperty('visibility', 'visible', 'important');
-						arrowEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M3 8L12 17L21 8"></path></svg>`;
+						arrowEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon right-triangle" style="width: 12px; height: 12px;"><path d="M3 8L12 17L21 8"></path></svg>`;
 						arrowEl.addEventListener('mouseenter', () => arrowEl.style.setProperty('color', 'var(--text-normal)', 'important'));
 						arrowEl.addEventListener('mouseleave', () => arrowEl.style.setProperty('color', 'var(--text-muted)', 'important'));
 					}
@@ -591,9 +585,9 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					if (hasChildren) {
 						childrenContainer = document.createElement('div');
 						childrenContainer.className = 'heading-children';
-						childrenContainer.style.marginLeft = halfInd + 'px'; 
+						childrenContainer.style.marginLeft = '-12px'; 
 						childrenContainer.style.borderLeft = '1px solid var(--nav-indentation-guide-color)';
-						childrenContainer.style.paddingLeft = halfInd + 'px';
+						childrenContainer.style.paddingLeft = '36px';
 						
 						const stateKey = `${item.file.path}:${index}`;
 						let isCollapsed = this.collapsedStates.get(stateKey);
@@ -1053,12 +1047,13 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 							const headingsContainer = document.createElement('div');
 							headingsContainer.className = 'enhance-nav-headings-container heading-children';
 							
-							const paddingLeftStr = titleEl ? getComputedStyle(titleEl).paddingLeft : '20px';
-							const paddingLeft = parseFloat(paddingLeftStr) || 20;
+							const paddingLeftStr = titleEl ? getComputedStyle(titleEl).paddingLeft : '24px';
+							let paddingLeft = parseFloat(paddingLeftStr) || 24;
+							if (paddingLeft === 0 && titleEl && titleEl.style.paddingLeft) paddingLeft = parseFloat(titleEl.style.paddingLeft) || 24;
 
-							headingsContainer.style.marginLeft = (paddingLeft + halfInd) + 'px';
+							headingsContainer.style.marginLeft = (paddingLeft - 12) + 'px';
 							headingsContainer.style.borderLeft = '1px solid var(--nav-indentation-guide-color)';
-							headingsContainer.style.paddingLeft = halfInd + 'px';
+							headingsContainer.style.paddingLeft = '36px';
 
 							const stack = [ { level: 0, container: headingsContainer } ];
 
@@ -1090,8 +1085,8 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 								const arrowEl = document.createElement('div');
 								arrowEl.className = 'enhance-nav-collapse-icon';
 								arrowEl.style.setProperty('position', 'absolute', 'important');
-								arrowEl.style.setProperty('left', '-' + treeInd + 'px', 'important');
-								arrowEl.style.setProperty('width', treeInd + 'px', 'important');
+								arrowEl.style.setProperty('left', '-24px', 'important');
+								arrowEl.style.setProperty('width', '24px', 'important');
 								arrowEl.style.setProperty('top', '0', 'important');
 								arrowEl.style.setProperty('bottom', '0', 'important');
 								arrowEl.style.setProperty('margin', '0px', 'important');
@@ -1108,7 +1103,7 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 									arrowEl.style.setProperty('visibility', 'hidden', 'important');
 								} else {
 									arrowEl.style.setProperty('visibility', 'visible', 'important');
-									arrowEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M3 8L12 17L21 8"></path></svg>`;
+									arrowEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon right-triangle" style="width: 12px; height: 12px;"><path d="M3 8L12 17L21 8"></path></svg>`;
 									arrowEl.addEventListener('mouseenter', () => arrowEl.style.setProperty('color', 'var(--text-normal)', 'important'));
 									arrowEl.addEventListener('mouseleave', () => arrowEl.style.setProperty('color', 'var(--text-muted)', 'important'));
 								}
@@ -1170,9 +1165,9 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 								if (hasChildren) {
 									const childrenContainer = document.createElement('div');
 									childrenContainer.className = 'heading-children';
-									childrenContainer.style.marginLeft = halfInd + 'px';
+									childrenContainer.style.marginLeft = '-12px';
 									childrenContainer.style.borderLeft = '1px solid var(--nav-indentation-guide-color)';
-									childrenContainer.style.paddingLeft = halfInd + 'px';
+									childrenContainer.style.paddingLeft = '36px';
 									
 									hItem.appendChild(childrenContainer);
 									stack.push({ level: h.level, container: childrenContainer });
