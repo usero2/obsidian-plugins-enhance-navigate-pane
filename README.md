@@ -87,6 +87,16 @@ Make your File Explorer look exactly the way you want with real-time updates.
 
 --- 
 
+## 🆕 What's New in Version 1.0.3
+
+- **Feature:** Added global keyboard navigation support (`Arrow Up` / `Arrow Down` / `Enter`) for the filter results pane and headings, working seamlessly whether the filter textbox is focused or not.
+- **Feature:** Added `Escape` key support to instantly clear the filter textbox.
+- **Feature:** Automatically selects and highlights the first result when typing in the filter textbox.
+- **Feature:** Added an optional Double `Left-Shift` hotkey to quickly focus the filter textbox from anywhere.
+- **Feature:** Added a global command (default: `Ctrl + Alt + Shift + Left Arrow`) to quickly reveal and focus the navigation pane from the editor.
+
+--- 
+
 ## ❤️ Support & Donate
 
 If this plugin has improved your Obsidian workflow, saved you time, or you just want to support its continued development, please consider donating! 

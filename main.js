@@ -13,7 +13,9 @@ const DEFAULT_SETTINGS = {
 	arrowExpands: 'Next level',
 	searchHeadings: false,
 	recursiveCollapse: false,
-	iconSet: 'default'
+	iconSet: 'default',
+	focusWithShift: true,
+	focusPaneHotkey: true
 }
 
 const MATERIAL_ICONS = {
@@ -127,6 +129,44 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 		}));
 		
 		this.initIconObserver();
+
+		this.addCommand({
+			id: 'focus-enhance-navigate-pane',
+			name: 'Focus Navigate Pane',
+			hotkeys: [{ modifiers: ["Mod", "Alt", "Shift"], key: "ArrowLeft" }],
+			callback: () => {
+				if (!this.settings.focusPaneHotkey) return;
+				const fileExplorerLeaf = this.app.workspace.getLeavesOfType("file-explorer")[0];
+				if (fileExplorerLeaf) {
+					this.app.workspace.revealLeaf(fileExplorerLeaf);
+					const container = fileExplorerLeaf.view.containerEl;
+					const filterInput = container.querySelector('.enhance-nav-filter-wrapper input');
+					if (filterInput && this.settings.showFilter && filterInput.offsetParent !== null) {
+						filterInput.focus();
+					} else {
+						container.focus();
+					}
+				}
+			}
+		});
+
+		let lastShiftTime = 0;
+		this.registerDomEvent(document, 'keydown', (e) => {
+			if (this.settings.focusWithShift && e.code === 'ShiftLeft') {
+				const now = Date.now();
+				if (now - lastShiftTime < 400) {
+					const filterInput = document.querySelector('.enhance-nav-filter-wrapper input');
+					if (filterInput && filterInput.offsetParent !== null) {
+						filterInput.focus();
+					}
+					lastShiftTime = 0;
+				} else {
+					lastShiftTime = now;
+				}
+			} else {
+				if (e.code !== 'ShiftRight') lastShiftTime = 0; 
+			}
+		});
 
 		this.registerDomEvent(document, 'click', (evt) => {
 			if (!this.settings.recursiveCollapse) return;
@@ -749,12 +789,13 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 			const updateHighlight = () => {
 				const activeContainer = inputEl.value ? customContainer : navFilesContainer;
 				if (activeContainer) {
-					activeContainer.querySelectorAll('.nav-file-title, .nav-folder-title').forEach(el => {
+					activeContainer.querySelectorAll('.nav-file-title, .nav-folder-title, .heading-title-container').forEach(el => {
 						el.style.backgroundColor = '';
 					});
 				}
 				if (currentEl && currentEl.offsetParent !== null) {
 					currentEl.style.backgroundColor = 'var(--background-modifier-hover)';
+					currentEl.scrollIntoView({ block: 'nearest' });
 				}
 			};
 
@@ -1227,6 +1268,17 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 					}
 				}
 				this.applyIcons();
+				
+				if (q) {
+					const visibleTitles = Array.from(customContainer.querySelectorAll('.nav-file-title, .nav-folder-title, .heading-title-container'))
+						.filter(el => el.offsetParent !== null);
+					if (visibleTitles.length > 0) {
+						currentEl = visibleTitles[0];
+					} else {
+						currentEl = null;
+					}
+					updateHighlight();
+				}
 			};
 
 			inputEl.addEventListener('input', applyFilter);
@@ -1237,11 +1289,11 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 				inputEl.focus();
 			});
 
-			inputEl.addEventListener('keydown', (e) => {
+			container.addEventListener('keydown', (e) => {
 				const activeContainer = inputEl.value ? customContainer : navFilesContainer;
 				if (!activeContainer) return;
 				
-				const visibleTitles = Array.from(activeContainer.querySelectorAll('.nav-file-title, .nav-folder-title'))
+				const visibleTitles = Array.from(activeContainer.querySelectorAll('.nav-file-title, .nav-folder-title, .heading-title-container'))
 					.filter(el => el.offsetParent !== null);
 					
 				if (e.key === 'ArrowDown') {
@@ -1261,9 +1313,15 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 						currentEl = visibleTitles[0];
 						updateHighlight();
 					}
+				} else if (e.key === 'Escape') {
+					if (inputEl.value) {
+						e.preventDefault();
+						inputEl.value = '';
+						applyFilter();
+					}
 				} else if (e.key === 'Enter') {
-					e.preventDefault();
 					if (currentEl) {
+						e.preventDefault();
 						const prevIntercept = this.settings.interceptClick;
 						this.settings.interceptClick = false;
 						currentEl.click(); 
@@ -1295,6 +1353,26 @@ class EnhanceNavigateSettingTab extends PluginSettingTab {
 				.setValue(this.plugin.settings.showFilter)
 				.onChange(async (value) => {
 					this.plugin.settings.showFilter = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Double Left-Shift to Filter')
+			.setDesc('Press Left-Shift twice quickly to automatically focus the filter textbox.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.focusWithShift)
+				.onChange(async (value) => {
+					this.plugin.settings.focusWithShift = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Ctrl+Alt+Shift+Left to Focus Pane')
+			.setDesc('Press Ctrl + Alt + Shift + Left Arrow to quickly focus the navigation pane from the editor.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.focusPaneHotkey)
+				.onChange(async (value) => {
+					this.plugin.settings.focusPaneHotkey = value;
 					await this.plugin.saveSettings();
 				}));
 				
