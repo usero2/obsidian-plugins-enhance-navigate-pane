@@ -257,11 +257,19 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 		if (!iconSetData) return;
 
 		document.querySelectorAll('.nav-file-title').forEach(el => {
+			const isRenaming = el.classList.contains('is-being-renamed') || el.querySelector('input');
+			const hasIcon = el.querySelector('.custom-nav-icon') !== null;
+			if (isRenaming && hasIcon) return;
+			
 			const ext = el.getAttribute('data-path')?.split('.').pop()?.toLowerCase() || 'md';
 			this.injectIcon(el, ext, iconSetData, false);
 		});
 
 		document.querySelectorAll('.nav-folder-title:not(.heading-title-container)').forEach(el => {
+			const isRenaming = el.classList.contains('is-being-renamed') || el.querySelector('input');
+			const hasIcon = el.querySelector('.custom-nav-icon') !== null;
+			if (isRenaming && hasIcon) return;
+			
 			const nameEl = el.querySelector('.nav-folder-title-content');
 			if (!nameEl) return;
 			const name = nameEl.textContent?.trim()?.toLowerCase() || '';
@@ -305,8 +313,8 @@ module.exports = class EnhanceNavigatePanePlugin extends Plugin {
 		}
 		
 		const contentEl = el.querySelector('.nav-file-title-content, .nav-folder-title-content');
-		if (contentEl) {
-			contentEl.prepend(span);
+		if (contentEl && contentEl.parentNode) {
+			contentEl.parentNode.insertBefore(span, contentEl);
 		} else {
 			el.prepend(span);
 		}

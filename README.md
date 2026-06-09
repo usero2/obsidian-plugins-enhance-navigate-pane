@@ -97,6 +97,13 @@ Make your File Explorer look exactly the way you want with real-time updates.
 
 --- 
 
+## 🆕 What's New in Version 1.0.4
+
+- **Bug Fix:** Fixed an issue where the custom file/folder icons would cause the native rename textbox to lose focus, which effectively cancelled the renaming action.
+- **Bug Fix:** Resolved a bug where newly created folders or files would not display their icon immediately while in the initial renaming state.
+
+--- 
+
 ## ❤️ Support & Donate
 
 If this plugin has improved your Obsidian workflow, saved you time, or you just want to support its continued development, please consider donating! 
